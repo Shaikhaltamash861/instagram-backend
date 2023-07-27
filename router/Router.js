@@ -1,7 +1,7 @@
 const express=require('express')
 
 const multer  = require('multer')
-const upload = multer({ dest: 'uploads/',
+const upload = multer({
 limits: {  fileSize: 1048576, fieldSize:  25 * 1024 * 1024 } })
 
 const router=express.Router();
