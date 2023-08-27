@@ -112,7 +112,7 @@ const deletePost=async(req,res)=>{
     }
 }
  const whoCommented=async(req,res)=>{
-     console.log(req.body)
+     
      const response=await Post.findById({_id:req.body.postId}).select('comments.user')
      const commentUser=response.comments.map((id)=>id.user)
     //  const user=await User.findById({_})
@@ -142,6 +142,40 @@ const deletePost=async(req,res)=>{
             res.status(201).json({message:error,success:false})
            
         }
+    }
+    // get random post
+    const getRandomPost=async(req,res)=>{
+        try {
+            const user=await User.findById({_id:req.query.id})
+            const totalPosts = await Post.find({}).select('_id')
+   const postId=totalPosts.map((post)=>post._id)
+   const result = await Post.aggregate([
+       {
+                 $match: { _id: { $in:postId} }
+               },
+               {
+                   $lookup: {
+                       from: 'users',
+                       localField:'postedBy',
+                       foreignField:'_id',
+                       as: 'bucket'
+                   }
+               }
+           ]).sort({createdAt:-1});
+           const abc=result.filter((post)=>post?.bucket[0]?._id!=req.query.id && !user.following.includes(post?.bucket[0]?._id))
+        
+           
+           return res.status(200).json({
+               success: true,
+               posts: abc,
+               totalPosts:postId.length
+           });
+         
+           
+       } catch (error) {
+           console.log(error)
+       }
+
     }
 
  // add comment to corresponds to post id
@@ -211,3 +245,4 @@ exports.deletePost=deletePost
 exports.getPostMyFollowing=getPostMyFollowing
 exports.whoCommented=whoCommented
 exports.likePost=likePost
+exports.getRandomPost=getRandomPost;

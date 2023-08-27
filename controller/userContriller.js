@@ -209,6 +209,15 @@ const getUserByUserName=async(req,res)=>{
         res.status(201).json({message:error._message,status:false})
     }
  }
+ const getSuggestion=async(req,res)=>{
+    const userId=req.query.userId;
+    console.log(userId)
+    const resp=await User.find({})
+    const result=resp.filter((user)=>user._id!=userId&&!user.followers.includes(userId))
+
+    res.status(200).json({success:true,users:result})
+
+ }
 exports.signup=signup;
 exports.signin=signin;
 exports.getUserById=getUserById
@@ -217,3 +226,4 @@ exports.followUser=followUser
 exports.getFollowers=getFollowers;
 exports.getFollowing=getFollowing
 exports.changeProfile=changeProfile
+exports.getSuggestion=getSuggestion
